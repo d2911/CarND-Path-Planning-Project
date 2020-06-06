@@ -1,6 +1,69 @@
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
-   
+
+## Reflection
+
+Using Sensor Fusion data, Frenet Co-ordiante, Prediction, Behaviour Planning and trajectory generation to help Car in simulator to self drive on it own with a speed limit of 50mph and is able to switch lane when it is required and safe to do it.
+
+### Prediction
+
+Position, velocity and various information of vehcile around our car is available in sensor fusion data. With this data in each lane future position and velocity of each car in close proximity (less than 30m) are determined. Cost is assignes to each lane based on how close each vehicle to our vehcile in future point (closer the other vehicle higher the cost in that lane). 
+
+Deceleration and acceleration of our car is determined here. Based on the distance between our veicle to one in the front, if it is 30m vehicle speed is reduced slowly but it is too close (15m) vehicle speed is reduced very fast. Once the distance increases velocity is increased slowly if the current vehicle speed is greater than 20mph and velocity is increased very fast if the current velocity is less than 20mph. This takes care of collison avoidance, additionally spped linit of 50mph is considered here. More score of improvement is there.
+
+In each lane, velocity of first vehicle in front of our car is determined to find the fastest lane.
+
+### Behaviour Planning
+
+Finite state machine is used to implement Behaviour planning, possible states are as per below enum, READY, Keep Lane, Prepare Lane Change Right, Prepare Lane change Left, Lane Change Left and Lane Change Right.
+
+`enum FSMState{READY=1, KEEPLANE, PLCR, PLCL, LCR, LCL};`
+
+In the state machine, cost based on distance between vehcile and velocity of vehicle in each lane determined in prediction step are used to make state transition. Left lane, center lane and right lane are considered as 0, 1 and 2 respectively in the algorithm.
+
+__State READY:__  
+   This is the default state when program starts.  
+   __Transition__  
+      1. KEEPLANE : every time READY state is reached, state transition to KEEPLANE is triggered.  
+  
+__State KEEPLANE:__  
+   When vehicle is close enough to vehcile in front, this state will look for efficient lane change.  
+   __Transition__  
+      1. PLCR: When curent lane of our car is left or center and risk in right lane [cost of lane determined in previous step] is less than a threshold.  
+      2. PLCL: When curent lane of our car is right or center and risk in left lane [cost of lane determined in previous step] is less than a threshold.  
+      Note: when car is in center lane right turn or left turn happens based on where cost is less.  
+  
+__State PLCR:__  
+   This is intermediate state before lane change to right. Before initiating lane change velocity of vehicle in each lane, determined in prediction, is used to check the fastest lane. If current lane is fastest lane change is aborthed and our car will continue in the current lane.  
+   __Transition__  
+      1. KEEPLANE : When traffic in current lane is faster than right lane.  
+      2. LCR: When traffic in right lane is faster than current lane and velocity of car is atlease 30mph.  
+
+__State PLCL:__  
+   This is intermediate state before lane change to left. Before initiating lane change velocity of vehicle in each lane, determined in prediction, is used to check the fastest lane. If current lane is fastest lane change is aborthed and our car will continue in the current lane.  
+   __Transition__  
+      1. KEEPLANE : When traffic in current lane is faster than left lane.  
+      2. LCR: When traffic in left lane is faster than current lane and velocity of car is atlease 30mph.  
+
+__State LCR:__  
+   Right lane change is triggered and stays in this state for 10 count.  
+   __Transition__  
+      1. KEEPLANE : After 10 count in this state, state change is triggered.  
+      
+__State LCL:__  
+   Left lane change is triggered and stays in this state for 10 count.  
+   __Transition__  
+      1. KEEPLANE : After 10 count in this state, state change is triggered.  
+
+### Trajactory Generation
+
+spline library is used to generate smooth trajectory for lane changes. Refer tips section for more details on spline. Five points are constructed, last two points from previous path and three more points are determined from future ta gap of 30m, 60m and 90m. Using these five points spline is constructed, using spline and 50 points in x direction are used to determine points in x,y co-ordinate.  
+
+### Test Run on Simulator
+
+  
+  
+
 ### Simulator.
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2).  
 
@@ -91,55 +154,3 @@ A really helpful resource for doing this project and creating smooth trajectorie
     cd uWebSockets
     git checkout e94b6e1
     ```
-
-## Editor Settings
-
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
-
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
-
-## Code Style
-
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
-
-## Project Instructions and Rubric
-
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
-
-
-## Call for IDE Profiles Pull Requests
-
-Help your fellow students!
-
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to ensure
-that students don't feel pressured to use one IDE or another.
-
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
-
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
-
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
-
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
-
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-

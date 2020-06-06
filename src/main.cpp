@@ -16,7 +16,7 @@ using std::vector;
 
 #define RISKMIN 0.6 //riskMax is 1
 int lane = 1;
-double ref_vel = 5.0;
+double ref_vel = 15.0;
 
 int stFSM = READY;
 
@@ -135,7 +135,7 @@ int main() {
                 close = true;
                 //ref_vel = 29.5;
               }
-              if((check_car_s > car_s) && ((check_car_s - car_s) < 50))
+              if((check_car_s > car_s) && ((check_car_s - car_s) < 30))
               {
                 look4LC = true;
                 //ref_vel = 29.5;
@@ -208,6 +208,10 @@ int main() {
           else if((close)&&(ref_vel > 0.0))
           {
             ref_vel -= 1.0*0.224;
+          }
+          else if(ref_vel < 20.0)
+          {
+            ref_vel += 2.0*0.224;
           }
           else if(ref_vel < 49.0)
           {
@@ -415,7 +419,7 @@ int main() {
           
           double x_add_on = 0;
           //std::cout<<"target_dist= "<<target_dist<<"; N= "<<N;
-          for(int i = 0; i< (200 - previous_path_x.size()); i++)
+          for(int i = 0; i< (50 - previous_path_x.size()); i++)
           {
             double x_point = x_add_on + (target_x)/N;
             double y_point = s(x_point);

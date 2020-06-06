@@ -1,0 +1,2 @@
+I am trying to crate a new file on Linux using vi.
+later this will be aded to github repo

@@ -2,7 +2,7 @@
  * spline.h
  *
  * simple cubic spline interpolation library without external
- * dependencies
+ * dependencies. 
  *
  * ---------------------------------------------------------------------
  * Copyright (C) 2011, 2014 Tino Kluge (ttk448 at gmail.com)

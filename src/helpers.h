@@ -154,4 +154,45 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s,
   return {x,y};
 }
 
+//enum State of Finite State Machine
+
+enum FSMState{READY=1, KEEPLANE, PLCR, PLCL, LCR, LCL};
+
+double riskOnLane(double ds)
+{
+  double risk;
+  if(ds > 60)
+  {
+    risk = 0.1;
+  }
+  if(ds > 50)
+  {
+    risk = 0.3;
+  }
+  if(ds > 30)
+  {
+    risk = 0.5;
+  }
+  else if(ds > 20)
+  {
+    risk = 0.6;
+  }
+  else if(ds>15)
+  {
+    risk = 0.7;
+  }
+  else
+  {
+    risk = 0.9;
+  }
+  
+  return risk;
+}
+
+double velocityofCarinLane(int lane)
+{
+  
+  double vel;
+}
+
 #endif  // HELPERS_H
